@@ -1,13 +1,13 @@
 import utils as u
 
-def ascCheck(levels):
+def isAsc(levels):
     n1 = int(levels[0])
     n2 = int(levels[round(len(levels)/2)])
     n3 = int(levels[-1])
     return all([n2 > n1, n3 > n1, n3 > n2])
     
 def safeCheck(levels):
-    asc = ascCheck(levels)
+    asc = isAsc(levels)
     for n in range (0, len(levels)-1):
         l1 = int(levels[n])
         l2 = int(levels[n+1])
@@ -22,10 +22,8 @@ def countSafes(toll = False):
         if safeCheck(levels):
             count += 1
         elif toll:
-            for n in range(len(levels)):
-                if safeCheck(levels[:n] + levels[n+1:]):
-                    count += 1
-                    break
+            if any([safeCheck(levels[:n] + levels[n+1:]) for n in range(len(levels))]):
+                count += 1
     return count    
  
 def main():
