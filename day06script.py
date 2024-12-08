@@ -1,9 +1,6 @@
 import utils as u
 import table as t
 
-G = {i+j*1j: c for i,r in enumerate(open('day06input.txt'))
-               for j,c in enumerate(r.strip())}
-
 def getPath():
     pos = start
     dir = (0,-1)
