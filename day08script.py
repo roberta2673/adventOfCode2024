@@ -3,12 +3,9 @@ import table as t
 
 def getAntennas():
     antennas = {}
-    for pos, value in table.getValues():
-        if value != ".":
-            if value in antennas.keys():
-                antennas[value].append(pos)
-            else:
-                antennas.update({value: [pos]})
+    for _, value in table.getValues():
+        if value != "." and value not in antennas.keys():
+            antennas[value] = table.getPos(value)
     return antennas
                 
 def addCouple(antinodes, p1, p2, i):

@@ -2,22 +2,21 @@ import utils as u
 import table as t
 
 def getXmas():
-    xmas = 0
+    count = 0
+    XMAS = ["X", "M", "A", "S"]
     for (x, y) in table.getPos("X"):
         for (dx, dy) in [(-1, 0), (1, 0), (0, -1), (0 , 1), (-1, -1), (1, -1), (-1, 1), (1, 1)]:
-            if table.getValue((x+dx*3, y+dy*3)) == "S" and table.getValue((x+dx*2, y+dy*2)) == "A" and table.getValue((x+dx, y+dy)) == "M":
-                xmas +=1  
-    return xmas
+            if all(table.getValue((x+dx*i, y+dy*i)) == XMAS[i] for i in range(1,4)):
+                count +=1  
+    return count
 
 def getXmas2(): 
-    xmas = 0
+    count = 0
     for (x, y) in table.getPos("A"):
-        neigh = []
-        for (dx, dy) in [(-1, -1), (1, -1), (-1, 1), (1, 1)]:
-            neigh.append(table.getValue((x+dx, y+dy)))
+        neigh = [table.getValue((x+dx, y+dy)) for (dx, dy) in [(-1, -1), (1, -1), (-1, 1), (1, 1)]]
         if neigh.count("M") == 2 and neigh.count("S") == 2 and neigh[0] != neigh[3] and neigh[1] != neigh[2]: 
-                xmas+=1
-    return xmas
+                count+=1
+    return count
 
 def main():
     global table

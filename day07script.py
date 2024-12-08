@@ -16,12 +16,10 @@ def isValid(res, numbers, part2 = False):
 def main():
     global input
     input, st = u.getInput("07")
-    eq = {}
     sum1, sum2 = 0, 0
     for line in input:
         result = int(line.split(": ")[0])
         numbers = [int(n) for n in line.split(": ")[1].split()]
-        eq.update({result: numbers})
         if isValid(result, numbers):
             sum1+=result
         elif isValid(result, numbers, True):
