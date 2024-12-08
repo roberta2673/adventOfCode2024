@@ -1,4 +1,3 @@
-from itertools import product
 import utils as u
 
 def isValid(res, numbers, part2 = False):
