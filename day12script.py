@@ -16,7 +16,7 @@ class Region():
         return perimeter
     
     def getBounds(self):
-        perimeter = set(self.getPerimeter())
+        perimeter = self.getPerimeter()
         bounds = set()
         for (l1x, l1y), (l2x, l2y) in perimeter:
             if ((l1x+1, l1y),(l2x+1, l2y)) not in perimeter and ((l1x, l1y+1),(l2x, l2y+1)) not in perimeter:
@@ -24,7 +24,6 @@ class Region():
         return len(bounds)
 
 def main():
-    global table
     input, st = u.getInput("12")
     table = t.Table(input)
     regions = []
