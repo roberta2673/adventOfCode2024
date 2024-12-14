@@ -1,6 +1,9 @@
 def createEmptyTable(dim, emptyValue):
     return Table([str(emptyValue)*dim + "\n"] * dim)
 
+def createEmptyTable(width, height, emptyValue):
+    return Table([str(emptyValue)*width + "\n"] * height)
+
 class Table:
     def __init__(self, input):
         self.data = []

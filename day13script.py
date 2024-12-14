@@ -8,10 +8,7 @@ def getMinPrice(block, offset = 0):
     tx, ty = (int(match[4]) + offset, int(match[5]) + offset)
     na = Symbol("na", integer=True)
     nb = Symbol("nb", integer=True)         
-    roots = solve(
-        [na * ax + nb * bx - tx, na * ay + nb * by - ty],
-        [na, nb],
-    )
+    roots = solve([na * ax + nb * bx - tx, na * ay + nb * by - ty], [na, nb])
     return roots[na] * 3 + roots[nb] if roots else 0
 
 def main():
