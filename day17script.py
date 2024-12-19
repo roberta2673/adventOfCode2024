@@ -53,11 +53,11 @@ def main():
     
     todo = [(1, 0)]
     candidates = []
-    for i, a in todo:
+    for l, a in todo:
         for a in range(a, a+8):
-            if execute(a, 0, 0) == program[-i:]:
-                todo += [(i+1, a*8)]
-                if i == len(program): 
+            if execute(a, 0, 0) == program[-l:]:
+                todo += [(l+1, a*8)]
+                if l == len(program): 
                     candidates.append(a)
     u.result(candidates[0], 216584205979245, st)
                 
