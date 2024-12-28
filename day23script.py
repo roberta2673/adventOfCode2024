@@ -1,31 +1,21 @@
+import networkx as nx
 import utils as u
-import itertools
 
-def add(gr, vet):
-    if all([c not in gr for c in itertools.permutations(vet, len(vet))]):
-          gr.add(tuple(vet))
- 
-def getGr(n = 3):
-    gr = set()
-    for (a,b), (c,d) in itertools.combinations(conn, 2):
-        g  = sorted(list(set([a,b,c,d])))
-        if len(g) == 3:
-                    if all([co in conn for co in itertools.combinations(g,2)]):
-                        add(gr, g)
-    return gr
- 
 def main():
-    global conn  
     input, st = u.getInput("23", False)     	    	
-    conn = []
-    for line in input.splitlines():
-        conn.append(tuple(sorted((line.split("-")[0], line.split("-")[1]))))
-    gr = getGr()
+    conn = [tuple(sorted((line.split("-")[0], line.split("-")[1]))) for line in input.splitlines()]
+    g = nx.Graph(conn)
+    max = []
     count = 0
-    for g in gr:
-        if  g[0].startswith("t") or g[1].startswith("t") or g[2].startswith("t"):
-            count += 1
+    for s in nx.enumerate_all_cliques(g):
+        if (len(s) == 3 and any(x for x in s if x.startswith("t"))):
+            count +=1
+        if len(s)>len(max):
+            max = s
     u.result(count, 1154, st)
+    u.result(",".join(sorted(max)), "aj,ds,gg,id,im,jx,kq,nj,ql,qr,ua,yh,zn", st)
+        
+    
     
 if __name__ == "__main__":
     exit(main())
