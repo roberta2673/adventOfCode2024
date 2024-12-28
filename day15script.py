@@ -8,17 +8,13 @@ def getBoxes(table):
     for dir in dirs:
         table.setValue((x, y), ".")
         dx, dy = dirMap[dir]
-        if table.getValue((x+dx, y+dy)) == ".":
-            x +=dx
-            y +=dy
-        elif table.getValue((x+dx, y+dy)) == "O":
-            n = 2
-            while table.getValue((x+dx*n, y+dy*n)) == "O":
-                n+=1
-            if table.getValue((x+dx*n, y+dy*n)) == ".":
-                table.setValue((x+dx*n, y+dy*n), "O")
-                x += dx
-                y += dy     
+        n = 1
+        while table.getValue((x+dx*n, y+dy*n)) == "O":
+            n+=1
+        if table.getValue((x+dx*n, y+dy*n)) == ".":
+            table.setValue((x+dx*n, y+dy*n), "O")
+            x += dx
+            y += dy     
         table.setValue((x, y), "@")
     return table.getPos("O")
 
@@ -27,26 +23,38 @@ def getBoxes2(table):
     for dir in dirs:
         table.setValue((x, y), ".")
         dx, dy = dirMap[dir]
-        if table.getValue((x+dx, y+dy)) == ".":
-            x +=dx
-            y +=dy
-        elif table.getValue((x+dx, y+dy)) == "[" or table.getValue((x+dx, y+dy)) == "]":
-            if dy == 0:
-                while table.getValue((x+dx*n, y+dy*n)) == "[" or table.getValue((x+dx*n, y+dy*n)) == "]":
-                    n+=1
-                if table.getValue((x+dx*n, y+dy*n)) == ".":
-                    for i in reversed(1, n):
-                        table.setValue((x+dx*i, y+dy*i), table.getValue((x+dx*(i-1), y+dy*(i-1))))
-            else:
-                if dy == 1:
-                    check = [[(x+dx, y+dy), (x+dx+1,y+dy)]]
-                    end = False
-                    while not end:
-                        if all(table.getValue(c) == "." for c in check[-1]):
-                            
-                            end = True
+        n = 1
+        if dy == 0:
+            while table.getValue((x+dx*n, y+dy*n)) == "[" or table.getValue((x+dx*n, y+dy*n)) == "]":
+                n+=1
+            if table.getValue((x+dx*n, y+dy*n)) == ".":
+                for i in reversed(range(1,n+1)):
+                    table.copyValue((x+dx*i, y+dy*i), (x+dx*(i-1), y+dy*(i-1)))
+                x += dx
+                y += dy   
+        else:
+            pyramid = [[0]]
+            while any([table.getValue((x+size, y+dy*n)) in ["[", "]"] for size in pyramid[-1]]) and all([table.getValue((x+size, y+dy*n)) != "#" for size in pyramid[-1]]):
+                layer = set()
+                for l in pyramid[-1]:
+                    match(table.getValue((x+l, y+dy*n))):
+                        case "[":
+                            layer.add(l)
+                            layer.add(l+1)
+                        case "]":
+                            layer.add(l)
+                            layer.add(l-1)
+                pyramid.append(layer)
+                n+=1
+            pyramid.append(pyramid[-1])
+            if all([table.getValue((x+size, y+dy*n)) == "." for size in pyramid[-1]]):
+                for i in reversed(range(1,n+1)):
+                    for size in pyramid[i-1]:
+                        table.moveValue((x+size, y+dy*i), (x+size, y+dy*i-dy))
+                x += dx
+                y += dy       
         table.setValue((x, y), "@")
-    return table.getPos("O")
+    return table.getPos("[")
 
 def main():
     global dirs
@@ -58,7 +66,7 @@ def main():
     for line in input.split("\n\n")[0].splitlines():
         newLine = ""
         for n in line:
-            if n == "#":
+            if n == "#" or n == ".":
                 newLine += n
                 newLine += n
             if n == "O":
@@ -69,7 +77,7 @@ def main():
                 newLine += "."
         newInput.append(newLine)
     table = t.Table(newInput)
-    print(sum([x+y*100 for x, y in getBoxes(table)]))
+    u.result(sum([x+y*100 for x, y in getBoxes2(table)]), 1432781, st)
     
 if __name__ == "__main__":
     exit(main())

@@ -25,7 +25,18 @@ class Table:
     def setValue(self, pos, new_value):
         (x,y) = pos
         self.data[y][x] = new_value
-    
+
+    def copyValue(self, pos, old_pos):
+        (x,y) = pos
+        (xo, yo) = old_pos
+        self.data[y][x] = self.data[yo][xo]
+        
+    def moveValue(self, pos, old_pos, value_old = "."):
+        (x,y) = pos
+        (xo, yo) = old_pos
+        self.data[y][x] = self.data[yo][xo]
+        self.data[yo][xo] = value_old
+            
     def incrValue(self, pos):
         value = int(self.getValue(pos))
         self.setValue(pos, value+1)
