@@ -1,70 +1,54 @@
+from functools import cache
 import utils as u
-import table as t
 
-numeric = {"7":(0,0), "8":(1,0), "9":(2,0), "4":(0,1), "5":(1,1), "6":(2,1), "1":(0,2), "2":(1,2), "3":(2,2), "0":(1,3), "A":(2,3)}
-directional = {"^":(1,0), "A":(2,0), "<": (0,1), "v":(1,1), ">":(2,1)}
-dirToStr = {(0,-1):"^", (-1,0):"<", (0,1):"v", (1,0):">"}
-    
-def move(path, target, nPos, dPos):
-    nShift = (numeric[target][0]-nPos[0], numeric[target][1]-nPos[1])
-    if (nPos[0] + nShift[0]) == 0:
-        if nShift[1]:           
-            path, dShift = click(path, dirToStr[(0,int(nShift[1]/abs(nShift[1])))], dPos)
-            dPos = (dPos[0]+dShift[0], dPos[1]+dShift[1])
-            path+="A"*(abs(nShift[1])-1)
-        if nShift[0]:
-            path, dShift = click(path, dirToStr[(int(nShift[0]/abs(nShift[0])),0)], dPos)
-            dPos = (dPos[0]+dShift[0], dPos[1]+dShift[1])
-            path+="A"*(abs(nShift[0])-1)
-    else:
-        if nShift[0]:
-            path, dShift = click(path, dirToStr[(int(nShift[0]/abs(nShift[0])),0)], dPos)
-            dPos = (dPos[0]+dShift[0], dPos[1]+dShift[1])
-            path+="A"*(abs(nShift[0])-1)
-        if nShift[1]:           
-            path, dShift = click(path, dirToStr[(0,int(nShift[1]/abs(nShift[1])))], dPos)
-            dPos = (dPos[0]+dShift[0], dPos[1]+dShift[1])
-            path+="A"*(abs(nShift[1])-1)
-    nPos = (nPos[0]+nShift[0], nPos[1]+nShift[1])
-    return path, nPos, dPos
+numpad = {'7': (0, 0), '8': (1, 0), '9': (2, 0), '4': (0, 1), '5': (1, 1), '6': (2, 1), '1': (0, 2), '2': (1, 2), '3': (2, 2), '0': (1, 3), 'A': (2, 3)}
+dirpad = {'^': (1, 0), 'A': (2, 0), '<': (0, 1), 'v': (1, 1), '>': (2, 1)}
+dirToPad = {(0, 1): "v", (0, -1): "^", (1, 0): ">", (-1, 0): "<"}
 
-def click(path, target, dPos):
-    dShift = (directional[target][0]-dPos[0], directional[target][1]-dPos[1])
-    if (dPos[0] + dShift[0]) == 0:
-        if dShift[1]!=0:
-            path+=dirToStr[(0,int(dShift[1]/abs(dShift[1])))]*abs(dShift[1])
-        if dShift[0]!=0:
-            path+=dirToStr[(int(dShift[0]/abs(dShift[0])), 0)]*abs(dShift[0])
+def getKeypadDirs():
+    keypad_dirs = {}
+    for num1, loc1 in numpad.items():
+       for num2, loc2 in numpad.items(): 
+            dx = loc2[0]-loc1[0]
+            dy = loc2[1]-loc1[1]
+            xShift = "" if dx == 0 else dirToPad[(dx/abs(dx),0)]*abs(dx)
+            yShift = "" if dy == 0 else dirToPad[(0,dy/abs(dy))]*abs(dy)
+            if loc1[0] == 0 and loc2[1] == 3: keypad_dirs[(num1, num2)] = xShift + yShift
+            elif loc1[1] == 3 and loc2[0] == 0: keypad_dirs[(num1, num2)] = yShift + xShift
+            else: keypad_dirs[(num1, num2)] = [xShift, yShift]
+    for dir1, loc1 in dirpad.items():
+        for dir2, loc2 in dirpad.items():
+            dx = loc2[0]-loc1[0]
+            dy = loc2[1]-loc1[1]
+            xShift = "" if dx == 0 else dirToPad[(dx/abs(dx),0)]*abs(dx)
+            yShift = "" if dy == 0 else dirToPad[(0,dy/abs(dy))]*abs(dy)
+            if loc1[0] == 0 and loc2[1] == 0: keypad_dirs[(dir1, dir2)] = xShift + yShift
+            elif loc1[1] == 0 and loc2[0] == 0: keypad_dirs[(dir1, dir2)] = yShift + xShift
+            else: keypad_dirs[(dir1, dir2)] = [xShift, yShift]
+    return keypad_dirs
+
+@cache
+def click(path, level, nRob):
+    if level == nRob:
+        return len(path)
     else:
-        if dShift[0]!=0:
-            path+=dirToStr[(int(dShift[0]/abs(dShift[0])), 0)]*abs(dShift[0])
-        if dShift[1]!=0:
-            path+=dirToStr[(0,int(dShift[1]/abs(dShift[1])))]*abs(dShift[1])
-    path+="A"
-    return path, dShift
+        n = 0
+        for i, c in enumerate(path):
+            dirs = keypad_dirs[('A' if i == 0 else path[i - 1], c)]
+            if isinstance(dirs, list):
+                n += min(click(dirs[0] + dirs[1] + 'A', level + 1, nRob), click(dirs[1] + dirs[0] + 'A', level + 1, nRob))
+            else:
+                n+= click(dirs + 'A', level + 1, nRob)
+    return n
 
 def main():
-    global table
-    input, st = u.getInput("21")
-    res = 0
-    for line in input:
-        line = line.removesuffix("\n")
-        path = ""
-        nPos = numeric["A"]
-        for n in line:
-            dPos = directional["A"]
-            path, nPos, dPos = move(path, n, nPos, dPos)
-            path, _ = click(path, "A", dPos)
-            path1 = ""
-            dPos = numeric["A"]
-            d1Pos = directional["A"]
-            for p in path:
-                path1, dShift = click(path1, p, d1Pos)
-                d1Pos = (d1Pos[0]+dShift[0], d1Pos[1]+dShift[1])
-        print(line, path)
-        print(len(path1), path1)
-        res += (len(path1)*int(line.replace("A","")))
-    print(res)
+    global keypad_dirs, known_sequences
+    input, st = u.getInput("21", False)
+    keypad_dirs = getKeypadDirs()
+    known_sequences = {}
+    u.result(sum([click(line, 0, 3)*int(line[:-1]) for line in input.split()]), 105458, st)
+    known_sequences = {}
+    u.result(sum([click(line, 0, 26)*int(line[:-1]) for line in input.split()]), 129551515895690, st)
 
                 
 if __name__ == "__main__":
